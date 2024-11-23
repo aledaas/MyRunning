@@ -3,6 +3,7 @@ package com.aledaas.myrunning
 import android.animation.ObjectAnimator
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.runtime.internal.StabilityInferred
 import androidx.core.content.ContextCompat
 import java.util.concurrent.TimeUnit
 

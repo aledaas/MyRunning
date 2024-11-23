@@ -633,6 +633,7 @@
                             android:layout_alignParentBottom="true"
                             android:layout_centerInParent="true"
                             android:backgroundTint="@color/white"
+                            android:contentDescription="TODO"
                             android:src="@android:drawable/ic_menu_camera"
                             app:maxImageSize="40dp"
                             android:translationZ="12dp"
@@ -1349,7 +1350,6 @@
             android:textSize="30sp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_gravity="center|bottom"/>
     </RelativeLayout>
     <!--popup-->
