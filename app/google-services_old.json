@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "144191224278",
+    "project_id": "myrunning01",
+    "storage_bucket": "myrunning01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144191224278:android:ffcffc65d24985c29fcc77",
+        "android_client_info": {
+          "package_name": "com.aledaas.myrunning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144191224278-eeiajbvm0seqa248kjnjhaq02polbudp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aledaas.myrunning",
+            "certificate_hash": "387afe6ff7a212dc7fe6debd414bd74c0b4aae7b"
+          }
+        },
+        {
+          "client_id": "144191224278-mab7rtju40f6njhppgj1bj7t34ld65da.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBELsIWs3VXXOrN1KHy7vG4efANu7uMVxY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144191224278-mab7rtju40f6njhppgj1bj7t34ld65da.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

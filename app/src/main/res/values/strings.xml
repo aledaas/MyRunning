@@ -1,0 +1,135 @@
+<resources>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="forgotPassword">Olvidaste tu contraseña?</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="resetPassword">Enviar Contraseña</string>
+    <string name="invitation">¿Hasta qué nivel eres capaz de llegar?</string>
+    <string name="acept">He leído y acepto los</string>
+    <string name="terms">términos y condiciones de uso.</string>
+
+    <string name="empty_email">Introduce un email porfaplis</string>
+    <string name="invalid_email">mmm parece que el email está mal escrito</string>
+
+    <string name="google">GOOGLE</string>
+    <string name="facebook">FACEBOOK</string>
+
+    <string name="bar_title_terms">Términos y Condiciones de Uso</string>
+    <string name="terms1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent rhoncus convallis metus at pretium. Vivamus at lacinia leo. Praesent velit elit, suscipit sit amet pulvinar id, imperdiet ac massa. Quisque molestie lectus rhoncus urna tempor, ut lacinia mi tempor. Praesent volutpat, ligula eget lobortis cursus, mauris libero consequat ligula, nec scelerisque erat ipsum tempor justo. Aliquam ornare faucibus augue vel faucibus. Ut sollicitudin commodo tortor eu faucibus. Vestibulum lacinia ligula sed tortor auctor, vitae sollicitudin lorem dapibus. Phasellus sed tincidunt odio.</string>
+    <string name="terms2">Praesent arcu nisi, auctor quis tempor id, vehicula non nulla. Sed a fermentum tellus, quis pharetra lorem. Fusce vehicula libero in ultricies varius. Suspendisse vel velit tortor. Aliquam non nisi eget lectus tempor consectetur sed in magna. Nullam tincidunt, nibh ut sodales suscipit, ante est luctus purus, sed pellentesque ipsum massa et quam. Proin sed sapien ultrices ex aliquet elementum sed et erat. Sed tincidunt felis sapien, a suscipit massa cursus et. Phasellus auctor tellus ac neque maximus accumsan. Morbi sit amet odio nec sapien pharetra elementum maximus id odio. Integer laoreet, neque id efficitur auctor, magna massa consequat justo, quis vehicula ipsum massa at sem. Morbi in ornare sapien, in luctus mauris. </string>
+    <string name="terms3">Sed id libero auctor, lacinia lectus a, consequat nisl. Nam quis suscipit purus. Fusce at congue quam. Etiam congue imperdiet bibendum. Etiam at porttitor ipsum. Donec consectetur sapien in neque tempus tempus. Sed vulputate rutrum ultrices. Praesent in est leo. Suspendisse euismod purus id urna tempus pellentesque. Praesent condimentum nisl sit amet purus pulvinar sagittis. Cras purus felis, hendrerit et ornare ut, molestie id orci. Integer dictum consequat leo, id pretium urna tempus et. Donec nibh ante, laoreet id lorem vitae, vestibulum sollicitudin lorem. </string>
+    <string name="completa_los_niveles">Completa los niveles\n</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+    <string name="bar_title">WildRunning</string>
+    <string name="menu_running">Running</string>
+    <string name="menu_record">Historial</string>
+    <string name="menu_premium">Hazte Premium</string>
+    <string name="menu_clearpreferences">Reestablecer Ajustes</string>
+    <string name="menu_signout">Cerrar Sesión</string>
+    <string name="menu_preferences">Preferencias</string>
+    <string name="menu_offercourse">Quieres aprender a desarrollar?</string>
+
+    <string name="nav_hi">Quien mueve las piernas mueve el corazón</string>
+    <string name="user">aledaas@gmail.com</string>
+    <string name="level">Nivel</string>
+    <string name="distance">DISTANCE</string>
+    <string name="_30">30%</string>
+
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+
+    <string name="bar_title_records">Historial</string>
+    <string name="orderby_dateZA">Fecha (Recientes primero)</string>
+    <string name="orderby_durationZA">Duración (Mayores primero)</string>
+    <string name="orderby_distanceZA">Distancia (Mayores primero)</string>
+    <string name="orderby_avgspeedZA">Vel. Prom. (Mayores primero)</string>
+    <string name="orderby_maxspeedZA">Vel. Max. (Mayores primero)</string>
+
+    <string name="orderby_dateAZ">Fecha (ultimos primero)</string>
+    <string name="orderby_duractionAZ">Duración (Menores primero)</string>
+    <string name="orderby_distanceAZ">Distancia (Menores primero)</string>
+    <string name="orderby_avgspeedAZ">Vel. Prom. (Menores primero)</string>
+    <string name="orderby_maxspeedAZ">Vel. Max. (Menores primero)</string>
+
+    <string name="start">VAVAVA</string>
+    <string name="stop">TATE QUIETO</string>
+    <string name="finish">Finalizar</string>
+    <string name="rounds">Round 1</string>
+    <string name="time_running">Running Time</string>
+    <string name="time_walking">Walking Time</string>
+    <string name="walking_clock">00:00</string>
+    <string name="init_stop_watch_value">00:00:00</string>
+
+    <string name="hard_volumen">Volumen de Música Cañera</string>
+    <string name="soft_volumen">Volumen de Música Tranqui</string>
+    <string name="notification_volumen">Volumen de Notificaciones</string>
+    <string name="hard_position">00:00:00</string>
+    <string name="hard_duration">01:00:00</string>
+    <string name="soft_position">00:00:00</string>
+    <string name="soft_duration">01:00:00</string>
+
+    <string name="PopUpTotalRuns">Carrera: </string>
+    <string name="PopUpTotalDistance">Kms acumulados: </string>
+    <string name="PopUpTotalTime">Total time: </string>
+    <string name="NoDataWarning">No hay datos registrados. Recuerda activar el GPS si deseas información de tu carrera</string>
+
+    <string name="PopUpDurationTitle">DURACION</string>
+    <string name="PopUpChallengeTitle">OBJETIVO</string>
+    <string name="PopUpIntervalTitle">INTERVALOS</string>
+    <string name="PopUpDistanceTitle">DISTANCIA</string>
+    <string name="PopUpAvgSpeedTitle">VELOCIDAD PROMEDIO</string>
+    <string name="PopUpMaxSpeedTitle">VELOCIDAD MÁXIMA</string>
+    <string name="PopUpUnevennessTitle">DESNIVEL</string>
+
+    <string name="textNull"></string>
+    <string name="textNoData">-</string>
+
+    <string name="medalDistanceDescription">Distancia [Record Personal]</string>
+    <string name="medalAvgSpeedDescription">Vel. Máx. [Record Personal]</string>
+    <string name="medalMaxSpeedDescription">Vel. Prom. [Record Personal]</string>
+
+
+
+
+</resources>
