@@ -1,43 +1,42 @@
 package com.aledaas.myrunning
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.NumberPicker
-import android.widget.Switch
-import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.aledaas.myrunning.LoginActivity.Companion.providerSession
 import com.aledaas.myrunning.LoginActivity.Companion.useremail
 import com.aledaas.myrunning.Utility.animateViewofFloat
 import com.aledaas.myrunning.Utility.animateViewofInt
 import com.aledaas.myrunning.Utility.getFormattedStopWatch
 import com.aledaas.myrunning.Utility.getSecFromWatch
 import com.aledaas.myrunning.Utility.setHeightLinearLayout
-import com.google.android.material.navigation.NavigationView
 import me.tankery.lib.circularseekbar.CircularSeekBar
-
+import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
 
     private var mHandler: Handler? = null
     private var mInterval = 1000
     private var timeInSeconds = 0L
     private var rounds: Int = 1
     private var startButtonClicked = false
+
 
     private var widthScreenPixels: Int = 0
     private var heightScreenPixels: Int = 0
@@ -59,7 +58,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var tvDistanceRecord: TextView
     private lateinit var tvAvgSpeedRecord: TextView
     private lateinit var tvMaxSpeedRecord: TextView
-
 
     private lateinit var tvChrono: TextView
     private lateinit var fbCamara: FloatingActionButton
@@ -87,38 +85,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var lyPopupRun: LinearLayout
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initObjets()
+        initObjects()
+
         initToolBar()
         initNavigationView()
-
-        // Configura el comportamiento del botón "Atrás"
-        setOnBackPressedBehavior()
     }
 
-    private fun setOnBackPressedBehavior() {
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START) // Cierra el drawer si está abierto
-                } else {
-                    signOut() // Ejecuta la lógica de cerrar sesión
-                }
-            }
-        })
+    override fun onBackPressed() {
+        //super.onBackPressed()
+
+        if (drawer.isDrawerOpen(GravityCompat.START))
+            drawer.closeDrawer(GravityCompat.START)
+        else
+            signOut()
+
     }
 
     private fun initToolBar(){
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_main)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = getString(R.string.bar_title)
 
         drawer = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.bar_title,R.string.navigation_drawer_close)
+            this, drawer, toolbar, R.string.bar_title,
+            R.string.navigation_drawer_close)
 
         drawer.addDrawerListener(toggle)
 
@@ -128,13 +123,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        var headerView: View = LayoutInflater.from(this).inflate(R.layout.nav_header_main, navigationView,false)
+        var headerView: View = LayoutInflater.from(this).inflate(R.layout.nav_header_main, navigationView, false)
         navigationView.removeHeaderView(headerView)
         navigationView.addHeaderView(headerView)
 
         var tvUser: TextView = headerView.findViewById(R.id.tvUser)
         tvUser.text = useremail
     }
+
     private fun initStopWatch() {
         tvChrono.text = getString(R.string.init_stop_watch_value)
     }
@@ -169,15 +165,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val lyChallenges = findViewById<LinearLayout>(R.id.lyChallenges)
         val lySettingsVolumesSpace = findViewById<LinearLayout>(R.id.lySettingsVolumesSpace)
         val lySettingsVolumes = findViewById<LinearLayout>(R.id.lySettingsVolumes)
-        val lySoftTrack = findViewById<LinearLayout>(R.id.lySoftTrack)
-        val lySoftVolume = findViewById<LinearLayout>(R.id.lySoftVolume)
+        var lySoftTrack = findViewById<LinearLayout>(R.id.lySoftTrack)
+        var lySoftVolume = findViewById<LinearLayout>(R.id.lySoftVolume)
+
 
         setHeightLinearLayout(lyMap, 0)
-        setHeightLinearLayout(lyIntervalModeSpace, 0)
-        setHeightLinearLayout(lyChallengesSpace, 0)
-        setHeightLinearLayout(lySettingsVolumesSpace, 0)
-        setHeightLinearLayout(lySoftTrack, 0)
-        setHeightLinearLayout(lySoftVolume, 0)
+        setHeightLinearLayout(lyIntervalModeSpace,0)
+        setHeightLinearLayout(lyChallengesSpace,0)
+        setHeightLinearLayout(lySettingsVolumesSpace,0)
+        setHeightLinearLayout(lySoftTrack,0)
+        setHeightLinearLayout(lySoftVolume,0)
 
         lyFragmentMap.translationY = -300f
         lyIntervalMode.translationY = -300f
@@ -211,14 +208,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         tvDistanceRecord.text = ""
         tvAvgSpeedRecord.text = ""
         tvMaxSpeedRecord.text = ""
-
     }
     private fun initSwitchs(){
         swIntervalMode = findViewById(R.id.swIntervalMode)
         swChallenges = findViewById(R.id.swChallenges)
         swVolumes = findViewById(R.id.swVolumes)
     }
-    private fun initIntervalModes(){
+    private fun initIntervalMode(){
         npDurationInterval = findViewById(R.id.npDurationInterval)
         tvRunningTime = findViewById(R.id.tvRunningTime)
         tvWalkingTime = findViewById(R.id.tvWalkingTime)
@@ -241,10 +237,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ROUND_INTERVAL = newVal * 60
             TIME_RUNNING = ROUND_INTERVAL / 2
         }
+
         csbRunWalk.max = 300f
         csbRunWalk.progress = 150f
-        csbRunWalk.setOnSeekBarChangeListener(object :
-            CircularSeekBar.OnCircularSeekBarChangeListener {
+        csbRunWalk.setOnSeekBarChangeListener(object : OnCircularSeekBarChangeListener {
             override fun onProgressChanged(circularSeekBar: CircularSeekBar,progress: Float,fromUser: Boolean) {
 
                 if (fromUser){
@@ -269,13 +265,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             csbRunWalk.progress = csbRunWalk.progress + set
                     }
                 }
-                if(csbRunWalk.progress == 0f) manageEnableButtonsRun(false, false)
+                if (csbRunWalk.progress == 0f) manageEnableButtonsRun(false, false)
                 else manageEnableButtonsRun(false, true)
 
                 tvRunningTime.text = getFormattedStopWatch((csbRunWalk.progress.toInt() *1000).toLong()).subSequence(3,8)
                 tvWalkingTime.text = getFormattedStopWatch(((ROUND_INTERVAL- csbRunWalk.progress.toInt())*1000).toLong()).subSequence(3,8)
                 TIME_RUNNING = getSecFromWatch(tvRunningTime.text.toString())
-
             }
 
             override fun onStopTrackingTouch(seekBar: CircularSeekBar) {
@@ -284,7 +279,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onStartTrackingTouch(seekBar: CircularSeekBar) {
             }
         })
-
     }
     private fun initChallengeMode(){
         npChallengeDistance = findViewById(R.id.npChallengeDistance)
@@ -335,6 +329,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         npChallengeDurationSS.setOnValueChangedListener { picker, oldVal, newVal ->
             getChallengeDuration(npChallengeDurationHH.value, npChallengeDurationMM.value, newVal)
         }
+
     }
     private fun hidePopUpRun(){
         var lyWindow = findViewById<LinearLayout>(R.id.lyWindow)
@@ -342,35 +337,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         lyPopupRun = findViewById(R.id.lyPopupRun)
         lyPopupRun.isVisible = false
     }
-    private fun initObjets(){
-
+    private fun initObjects(){
         initChrono()
         hideLayouts()
         initMetrics()
         initSwitchs()
-        initIntervalModes()
+        initIntervalMode()
         initChallengeMode()
         hidePopUpRun()
-
     }
 
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId){
+            R.id.nav_item_record -> callRecordActivity()
+            R.id.nav_item_signout -> signOut()
+        }
+
+        drawer.closeDrawer(GravityCompat.START)
+
+        return true
+    }
     fun callSignOut(view: View){
         signOut()
     }
     private fun signOut(){
         useremail = ""
 
+//        if (providerSession == "Facebook")  LoginManager.getInstance().logOut()
+
         FirebaseAuth.getInstance().signOut()
         startActivity (Intent(this, LoginActivity::class.java))
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-       when(item.itemId){
-           R.id.nav_item_record -> callRecordActivity()
-           R.id.nav_item_signout -> signOut()
-       }
-        drawer.closeDrawer(GravityCompat.START)
-        return true
     }
     private fun callRecordActivity(){
         val intent = Intent(this, RecordActivity::class.java)
@@ -398,8 +395,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 var lySettingsVolumesSpace = findViewById<LinearLayout>(R.id.lySettingsVolumesSpace)
                 setHeightLinearLayout(lySettingsVolumesSpace,600)
             }
+
             var tvRunningTime = findViewById<TextView>(R.id.tvRunningTime)
             TIME_RUNNING = getSecFromWatch(tvRunningTime.text.toString())
+
         }
         else{
             swIntervalMode.setTextColor(ContextCompat.getColor(this, R.color.white))
@@ -415,7 +414,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
     fun inflateChallenges(v: View){
         val lyChallengesSpace = findViewById<LinearLayout>(R.id.lyChallengesSpace)
         val lyChallenges = findViewById<LinearLayout>(R.id.lyChallenges)
@@ -433,7 +431,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             challengeDuration = 0
         }
     }
-
     fun showDuration(v: View){
         showChallenge("duration")
     }
@@ -475,7 +472,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
     private fun getChallengeDuration(hh: Int, mm: Int, ss: Int){
         var hours: String = hh.toString()
         if (hh<10) hours = "0"+hours
@@ -486,8 +482,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         challengeDuration = getSecFromWatch("${hours}:${minutes}:${seconds}")
     }
-
-    fun inflateVolumnes(v: View){
+    fun inflateVolumes(v: View){
 
         val lySettingsVolumesSpace = findViewById<LinearLayout>(R.id.lySettingsVolumesSpace)
         val lySettingsVolumes = findViewById<LinearLayout>(R.id.lySettingsVolumes)
@@ -507,10 +502,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             lySettingsVolumes.translationY = -300f
         }
     }
+
     fun startOrStopButtonClicked (v: View){
         manageRun()
     }
     private fun manageRun(){
+
+
 
         if (timeInSeconds.toInt() == 0){
 
@@ -539,7 +537,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             manageEnableButtonsRun(true, true)
         }
     }
-
     private fun manageEnableButtonsRun(e_reset: Boolean, e_run: Boolean){
         val tvReset = findViewById<TextView>(R.id.tvReset)
         val btStart = findViewById<LinearLayout>(R.id.btStart)
@@ -567,6 +564,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         else btStart.background = getDrawable(R.drawable.circle_background_todisable)
+
+
     }
 
     private fun startTime(){
@@ -700,4 +699,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         else updateProgressBarRound(Secs)
     }
+
+
 }
