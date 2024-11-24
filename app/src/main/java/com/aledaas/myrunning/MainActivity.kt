@@ -1,6 +1,7 @@
 package com.aledaas.myrunning
 
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -78,6 +79,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var challengeDuration: Int = 0
 
     private lateinit var swVolumes: Switch
+    private var mpNotify : MediaPlayer? = null
+    private var mpHard : MediaPlayer? = null
+    private var mpSoft : MediaPlayer? = null
+    private lateinit var  sbHardVolume : SeekBar
+    private lateinit var  sbSoftVolume : SeekBar
+    private lateinit var sbNotifyVolume : SeekBar
+
 
 
     private var ROUND_INTERVAL = 300
@@ -167,6 +175,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val lySettingsVolumes = findViewById<LinearLayout>(R.id.lySettingsVolumes)
         var lySoftTrack = findViewById<LinearLayout>(R.id.lySoftTrack)
         var lySoftVolume = findViewById<LinearLayout>(R.id.lySoftVolume)
+
 
 
         setHeightLinearLayout(lyMap, 0)
@@ -331,6 +340,100 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
+    private fun setVolumes(){
+        sbHardVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+                mpHard?.setVolume(i/100.0f, i/100.0f)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+        })
+        sbSoftVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+                mpSoft?.setVolume(i/100.0f, i/100.0f)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+        })
+        sbNotifyVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+                mpNotify?.setVolume(i/100.0f, i/100.0f)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+        })
+    }
+    private fun updateTimesTrack(timesH: Boolean, timesS: Boolean){
+        val sbHardTrack = findViewById<SeekBar>(R.id.sbHardTrack)
+        val sbSoftTrack = findViewById<SeekBar>(R.id.sbSoftTrack)
+
+        if (timesH){
+            val tvHardPosition = findViewById<TextView>(R.id.tvHardPosition)
+            val tvHardRemaining = findViewById<TextView>(R.id.tvHardRemaining)
+            tvHardPosition.text = getFormattedStopWatch(sbHardTrack.progress.toLong())
+            tvHardRemaining.text = "-" + getFormattedStopWatch( mpHard!!.duration.toLong() - sbHardTrack.progress.toLong())
+        }
+        if (timesS){
+            val tvSoftPosition = findViewById<TextView>(R.id.tvSoftPosition)
+            val tvSoftRemaining = findViewById<TextView>(R.id.tvSoftRemaining)
+            tvSoftPosition.text = getFormattedStopWatch(sbSoftTrack.progress.toLong())
+            tvSoftRemaining.text = "-" + getFormattedStopWatch( mpSoft!!.duration.toLong() - sbSoftTrack.progress.toLong())
+        }
+    }
+    private fun setProgressTracks(){
+        val sbHardTrack = findViewById<SeekBar>(R.id.sbHardTrack)
+        val sbSoftTrack = findViewById<SeekBar>(R.id.sbSoftTrack)
+        sbHardTrack.max = mpHard!!.duration
+        sbSoftTrack.max = mpSoft!!.duration
+        updateTimesTrack(true, true)
+
+        sbHardTrack.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, i: Int, fromUser: Boolean) {
+                if (fromUser){
+                    mpHard?.pause()
+                    mpHard?.seekTo(i)
+                    mpHard?.start()
+                    updateTimesTrack(true, false)
+                }
+            }
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
+        })
+
+        sbSoftTrack.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, i: Int, fromUser: Boolean) {
+                if (fromUser){
+                    mpSoft?.pause()
+                    mpSoft?.seekTo(i)
+                    mpSoft?.start()
+                    updateTimesTrack(false, true)
+                }
+            }
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
+        })
+
+    }
+
+    private fun initMusic(){
+        mpNotify = MediaPlayer.create(this, R.raw.notif1)
+        mpHard = MediaPlayer.create(this, R.raw.flying)
+        mpSoft = MediaPlayer.create(this, R.raw.enchant)
+
+        mpHard?.isLooping = true
+        mpSoft?.isLooping = true
+
+        sbHardVolume = findViewById(R.id.sbHardVolume)
+        sbSoftVolume = findViewById(R.id.sbSoftVolume)
+        sbNotifyVolume = findViewById(R.id.sbNotifyVolume)
+
+        setVolumes()
+        setProgressTracks()
+
+    }
+    private fun notifySound(){
+        mpNotify?.start()
+    }
     private fun hidePopUpRun(){
         var lyWindow = findViewById<LinearLayout>(R.id.lyWindow)
         lyWindow.translationX = 400f
@@ -344,6 +447,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initSwitchs()
         initIntervalMode()
         initChallengeMode()
+        initMusic()
         hidePopUpRun()
     }
 
@@ -432,10 +536,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
     fun showDuration(v: View){
-        showChallenge("duration")
+     if(timeInSeconds.toInt() == 0) showChallenge("duration")
     }
     fun showDistance(v:View){
-        showChallenge("distance")
+     if(timeInSeconds.toInt() == 0) showChallenge("distance")
     }
     private fun showChallenge(option: String){
         var lyChallengeDuration = findViewById<LinearLayout>(R.id.lyChallengeDuration)
@@ -482,7 +586,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         challengeDuration = getSecFromWatch("${hours}:${minutes}:${seconds}")
     }
-    fun inflateVolumes(v: View){
+    fun inflateVolumnes(v: View){
 
         val lySettingsVolumesSpace = findViewById<LinearLayout>(R.id.lySettingsVolumesSpace)
         val lySettingsVolumes = findViewById<LinearLayout>(R.id.lySettingsVolumes)
@@ -525,16 +629,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             npChallengeDurationSS.isEnabled = false
 
             tvChrono.setTextColor(ContextCompat.getColor(this, R.color.chrono_running))
+
+            mpHard?.start()
         }
         if (!startButtonClicked){
             startButtonClicked = true
             startTime()
             manageEnableButtonsRun(false, true)
+
+            if (mpHard?.isPlaying!!) mpHard?.start()
+            if (mpSoft?.isPlaying!!) mpSoft?.start()
         }
         else{
             startButtonClicked = false
             stopTime()
             manageEnableButtonsRun(true, true)
+
+            if (mpHard?.isPlaying == true) mpHard?.pause()
+            if (mpSoft?.isPlaying == true) mpSoft?.pause()
         }
     }
     private fun manageEnableButtonsRun(e_reset: Boolean, e_run: Boolean){
@@ -578,6 +690,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var chronometer: Runnable = object : Runnable {
         override fun run() {
             try{
+
+                if (mpHard!!.isPlaying){
+                    val sbHardTrack: SeekBar = findViewById(R.id.sbHardTrack)
+                    sbHardTrack.progress = mpHard!!.currentPosition
+                }
+                 if (mpSoft!!.isPlaying){
+                    val sbSoftTrack: SeekBar = findViewById(R.id.sbSoftTrack)
+                    sbSoftTrack.progress = mpHard!!.currentPosition
+                }
+
+                updateTimesTrack(true, true)
+
                 if (swIntervalMode.isChecked){
                     checkStopRun(timeInSeconds)
                     checkNewRound(timeInSeconds)
@@ -604,6 +728,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun resetVariablesRun(){
         timeInSeconds = 0
         rounds = 1
+        challengeDistance = 0f
+        challengeDuration = 0
+
         initStopWatch()
 
     }
@@ -682,6 +809,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val lyRoundProgressBg = findViewById<LinearLayout>(R.id.lyRoundProgressBg)
             lyRoundProgressBg.setBackgroundColor(ContextCompat.getColor(this, R.color.chrono_walking))
             lyRoundProgressBg.translationX = -widthAnimations.toFloat()
+
+            mpHard?.pause()
+            notifySound()
+            mpSoft?.start()
         }
         else updateProgressBarRound(Secs)
     }
@@ -695,6 +826,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val lyRoundProgressBg = findViewById<LinearLayout>(R.id.lyRoundProgressBg)
             lyRoundProgressBg.setBackgroundColor(ContextCompat.getColor(this, R.color.chrono_running))
             lyRoundProgressBg.translationX = -widthAnimations.toFloat()
+
+            mpSoft?.pause()
+            notifySound()
+            mpHard?.start()
 
         }
         else updateProgressBarRound(Secs)
