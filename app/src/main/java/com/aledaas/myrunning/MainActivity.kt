@@ -1,9 +1,14 @@
 package com.aledaas.myrunning
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
+import android.location.LocationRequest
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -13,38 +18,34 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.aledaas.myrunning.Constants.INTERVAL_LOCATION
+import com.aledaas.myrunning.LoginActivity.Companion.providerSession
 import com.aledaas.myrunning.LoginActivity.Companion.useremail
 import com.aledaas.myrunning.Utility.animateViewofFloat
 import com.aledaas.myrunning.Utility.animateViewofInt
 import com.aledaas.myrunning.Utility.getFormattedStopWatch
 import com.aledaas.myrunning.Utility.getSecFromWatch
+import com.aledaas.myrunning.Utility.roundNumber
 import com.aledaas.myrunning.Utility.setHeightLinearLayout
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import me.tankery.lib.circularseekbar.CircularSeekBar
 import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.location.Location
-import androidx.activity.OnBackPressedCallback
-import androidx.core.app.ActivityCompat
-import com.aledaas.myrunning.Constants.INTERVAL_LOCATION
-import com.aledaas.myrunning.Utility.roundNumber
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
-import com.google.android.gms.location.LocationResult
-
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -53,10 +54,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val REQUIRED_PERMISSIONS_GPS =
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
+                Manifest.permission.ACCESS_FINE_LOCATION)
     }
-
     private var mHandler: Handler? = null
     private var mInterval = 1000
     private var timeInSeconds = 0L
@@ -107,16 +106,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var mpNotify : MediaPlayer? = null
     private var mpHard : MediaPlayer? = null
     private var mpSoft : MediaPlayer? = null
-    private lateinit var  sbHardVolume : SeekBar
-    private lateinit var  sbSoftVolume : SeekBar
+    private lateinit var sbHardVolume : SeekBar
+    private lateinit var sbSoftVolume : SeekBar
     private lateinit var sbNotifyVolume : SeekBar
 
-
+    private lateinit var sbHardTrack : SeekBar
+    private lateinit var sbSoftTrack : SeekBar
 
     private var ROUND_INTERVAL = 300
+    private var hardTime : Boolean = true
     private var TIME_RUNNING: Int = 0
 
     private lateinit var lyPopupRun: LinearLayout
+
 
     private var activatedGPS: Boolean = true
     private lateinit var fusedLocationClient : FusedLocationProviderClient
@@ -142,8 +144,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initToolBar()
         initNavigationView()
-        initPermissionGPS()
-        // Configura el comportamiento del botón "Atrás"
+        initPermissionsGPS()
+
         setOnBackPressedBehavior()
     }
 
@@ -318,9 +320,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         else
                             csbRunWalk.progress = csbRunWalk.progress + set
                     }
+
+                    if (csbRunWalk.progress == 0f) manageEnableButtonsRun(false, false)
+                    else manageEnableButtonsRun(false, true)
                 }
-                if (csbRunWalk.progress == 0f) manageEnableButtonsRun(false, false)
-                else manageEnableButtonsRun(false, true)
 
                 tvRunningTime.text = getFormattedStopWatch((csbRunWalk.progress.toInt() *1000).toLong()).subSequence(3,8)
                 tvWalkingTime.text = getFormattedStopWatch(((ROUND_INTERVAL- csbRunWalk.progress.toInt())*1000).toLong()).subSequence(3,8)
@@ -387,49 +390,48 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     private fun setVolumes(){
         sbHardVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+            override fun onProgressChanged(p0: SeekBar?, i: Int, p2: Boolean) {
                 mpHard?.setVolume(i/100.0f, i/100.0f)
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStartTrackingTouch(p0: SeekBar?) { }
+            override fun onStopTrackingTouch(p0: SeekBar?) { }
         })
+
         sbSoftVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+            override fun onProgressChanged(p0: SeekBar?, i: Int, p2: Boolean) {
                 mpSoft?.setVolume(i/100.0f, i/100.0f)
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStartTrackingTouch(p0: SeekBar?) { }
+            override fun onStopTrackingTouch(p0: SeekBar?) { }
         })
         sbNotifyVolume.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, i: Int, fromUser: Boolean) {
+            override fun onProgressChanged(p0: SeekBar?, i: Int, p2: Boolean) {
                 mpNotify?.setVolume(i/100.0f, i/100.0f)
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStartTrackingTouch(p0: SeekBar?) { }
+            override fun onStopTrackingTouch(p0: SeekBar?) { }
         })
     }
     private fun updateTimesTrack(timesH: Boolean, timesS: Boolean){
-        val sbHardTrack = findViewById<SeekBar>(R.id.sbHardTrack)
-        val sbSoftTrack = findViewById<SeekBar>(R.id.sbSoftTrack)
 
         if (timesH){
             val tvHardPosition = findViewById<TextView>(R.id.tvHardPosition)
             val tvHardRemaining = findViewById<TextView>(R.id.tvHardRemaining)
-            tvHardPosition.text = getFormattedStopWatch(sbHardTrack.progress.toLong())
+            tvHardPosition.text = getFormattedStopWatch(mpHard!!.currentPosition.toLong())
             tvHardRemaining.text = "-" + getFormattedStopWatch( mpHard!!.duration.toLong() - sbHardTrack.progress.toLong())
         }
         if (timesS){
             val tvSoftPosition = findViewById<TextView>(R.id.tvSoftPosition)
             val tvSoftRemaining = findViewById<TextView>(R.id.tvSoftRemaining)
-            tvSoftPosition.text = getFormattedStopWatch(sbSoftTrack.progress.toLong())
+            tvSoftPosition.text = getFormattedStopWatch(mpSoft!!.currentPosition.toLong())
             tvSoftRemaining.text = "-" + getFormattedStopWatch( mpSoft!!.duration.toLong() - sbSoftTrack.progress.toLong())
         }
     }
     private fun setProgressTracks(){
-        val sbHardTrack = findViewById<SeekBar>(R.id.sbHardTrack)
-        val sbSoftTrack = findViewById<SeekBar>(R.id.sbSoftTrack)
         sbHardTrack.max = mpHard!!.duration
         sbSoftTrack.max = mpSoft!!.duration
+        sbHardTrack.isEnabled = false
+        sbSoftTrack.isEnabled = false
         updateTimesTrack(true, true)
 
         sbHardTrack.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
@@ -438,6 +440,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mpHard?.pause()
                     mpHard?.seekTo(i)
                     mpHard?.start()
+                    if (!(timeInSeconds > 0L && hardTime && startButtonClicked)) mpHard?.pause()
                     updateTimesTrack(true, false)
                 }
             }
@@ -451,6 +454,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mpSoft?.pause()
                     mpSoft?.seekTo(i)
                     mpSoft?.start()
+                    if (!(timeInSeconds > 0L && !hardTime && startButtonClicked)) mpSoft?.pause()
                     updateTimesTrack(false, true)
                 }
             }
@@ -459,7 +463,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
-
     private fun initMusic(){
         mpNotify = MediaPlayer.create(this, R.raw.notif1)
         mpHard = MediaPlayer.create(this, R.raw.flying)
@@ -472,9 +475,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sbSoftVolume = findViewById(R.id.sbSoftVolume)
         sbNotifyVolume = findViewById(R.id.sbNotifyVolume)
 
+        sbHardTrack = findViewById(R.id.sbHardTrack)
+        sbSoftTrack = findViewById(R.id.sbSoftTrack)
+
         setVolumes()
         setProgressTracks()
-
     }
     private fun notifySound(){
         mpNotify?.start()
@@ -518,12 +523,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         FirebaseAuth.getInstance().signOut()
         startActivity (Intent(this, LoginActivity::class.java))
     }
+
     private fun callRecordActivity(){
         val intent = Intent(this, RecordActivity::class.java)
         startActivity(intent)
     }
-
-    fun inflateIntervalMode(v: View){
+    private fun inflateIntervalMode(){
         val lyIntervalMode = findViewById<LinearLayout>(R.id.lyIntervalMode)
         val lyIntervalModeSpace = findViewById<LinearLayout>(R.id.lyIntervalModeSpace)
         var lySoftTrack = findViewById<LinearLayout>(R.id.lySoftTrack)
@@ -563,6 +568,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
+    fun callInflateIntervalMode(v: View){
+        inflateIntervalMode()
+    }
     fun inflateChallenges(v: View){
         val lyChallengesSpace = findViewById<LinearLayout>(R.id.lyChallengesSpace)
         val lyChallenges = findViewById<LinearLayout>(R.id.lyChallenges)
@@ -581,10 +589,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
     fun showDuration(v: View){
-     if(timeInSeconds.toInt() == 0) showChallenge("duration")
+        if (timeInSeconds == 0L) showChallenge("duration")
     }
     fun showDistance(v:View){
-     if(timeInSeconds.toInt() == 0) showChallenge("distance")
+        if (timeInSeconds == 0L) showChallenge("distance")
     }
     private fun showChallenge(option: String){
         var lyChallengeDuration = findViewById<LinearLayout>(R.id.lyChallengeDuration)
@@ -652,8 +660,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun initPermissionGPS(){
-        if (allPermissionGrantedDPS())
+
+
+    private fun initPermissionsGPS(){
+        if (allPermissionsGrantedGPS())
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         else
             requestPermissionLocation()
@@ -663,20 +673,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_ID)
     }
-    private fun allPermissionGrantedDPS() = REQUIRED_PERMISSIONS_GPS.all{
-        ContextCompat.checkSelfPermission(baseContext,it) == PackageManager.PERMISSION_GRANTED
+    private fun allPermissionsGrantedGPS() = REQUIRED_PERMISSIONS_GPS.all {
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
-    private fun isLocationsEnabled(): Boolean {
+    private fun isLocationEnabled(): Boolean{
         var locationManager: LocationManager
-        = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    }
 
+    }
     private fun activationLocation(){
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivity(intent)
     }
+
     private fun checkPermission(): Boolean{
         return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
@@ -687,7 +698,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun manageLocation(){
         if (checkPermission()){
 
-            if (isLocationsEnabled()){
+            if (isLocationEnabled()){
                 if (ActivityCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED
@@ -706,23 +717,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         else requestPermissionLocation()
     }
 
-    private val mLocationCallBack = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            super.onLocationResult(locationResult)
-            val location = locationResult.lastLocation
-            if (location != null) {
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData(){
+        var mLocationRequest = com.google.android.gms.location.LocationRequest()
+        mLocationRequest.priority = PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = 0
+        mLocationRequest.fastestInterval = 0
+        mLocationRequest.numUpdates = 1
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-                init_lt = location.latitude
-                init_ln = location.longitude
-                if (timeInSeconds > 0L) registerNewLocation(location)
-            }
+        fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallBack, Looper.myLooper())
+
+
+    }
+    private val mLocationCallBack = object: LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult) {
+            var mLastLocation : Location = locationResult.lastLocation
+
+            init_lt = mLastLocation.latitude
+            init_ln = mLastLocation.longitude
+
+            if (timeInSeconds > 0L) registerNewLocation(mLastLocation)
         }
     }
     private fun registerNewLocation(location: Location){
-        println("Latitud: ${location.latitude}, Longitud: ${location.longitude}")
         var new_latitude: Double = location.latitude
         var new_longitude: Double = location.longitude
-        println("Latitud: ${new_latitude}, Longitud: ${new_longitude}")
+    //    println("Latitud: ${new_latitude}, Longitud: ${new_longitude}")
 
         if (flagSavedLocation){
             if (timeInSeconds >= INTERVAL_LOCATION){
@@ -785,41 +806,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-
-    @SuppressLint("MissingPermission")
-    private fun requestNewLocationData() {
-            var mLocationRequest = com.google.android.gms.location.LocationRequest()
-            mLocationRequest.priority = PRIORITY_HIGH_ACCURACY
-            mLocationRequest.interval = 0
-            mLocationRequest.fastestInterval = 0
-            mLocationRequest.numUpdates = 1
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-            fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallBack, Looper.myLooper())
-        }
-
-
     fun startOrStopButtonClicked (v: View){
-       manageStartStop()
+        manageStartStop()
     }
     private fun manageStartStop(){
-        if (timeInSeconds == 0L && isLocationsEnabled() == false){
-           AlertDialog.Builder(this)
-               .setTitle(getString(R.string.alertActivationGPSTitle))
-               .setMessage(getString(R.string.alertActivationGPSDescription))
-               .setPositiveButton(R.string.aceptActivationGPS,
-                   DialogInterface.OnClickListener{ dialog, which ->
-                       activationLocation()
-                   })
-               .setNegativeButton(R.string.ignoreActivationGPS,
-                   DialogInterface.OnClickListener{ dialog, which ->
+        if (timeInSeconds == 0L && isLocationEnabled() == false){
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.alertActivationGPSTitle))
+                .setMessage(getString(R.string.alertActivationGPSDescription))
+                .setPositiveButton(R.string.aceptActivationGPS,
+                    DialogInterface.OnClickListener { dialog, which ->
+                        activationLocation()
+                    })
+                .setNegativeButton(R.string.ignoreActivationGPS,
+                    DialogInterface.OnClickListener { dialog, which ->
                         activatedGPS = false
-                       manageRun()
-                   })
-               .setCancelable(true)
-               .show()
-
-        }else manageRun()
+                        manageRun()
+                    })
+                .setCancelable(true)
+                .show()
+        }
+        else manageRun()
     }
 
 
@@ -843,6 +850,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             tvChrono.setTextColor(ContextCompat.getColor(this, R.color.chrono_running))
 
+
+            sbHardTrack.isEnabled = true
+            sbSoftTrack.isEnabled = true
+
             mpHard?.start()
 
             if (activatedGPS){
@@ -857,16 +868,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startTime()
             manageEnableButtonsRun(false, true)
 
-            if (mpHard?.isPlaying!!) mpHard?.start()
-            if (mpSoft?.isPlaying!!) mpSoft?.start()
+            if (hardTime) mpHard?.start()
+            else mpSoft?.start()
+            /*
+            if (tvChrono.getCurrentTextColor() == ContextCompat.getColor(this, R.color.chrono_running))
+                mpHard?.start()
+            if (tvChrono.getCurrentTextColor() == ContextCompat.getColor(this, R.color.chrono_walking))
+                mpSoft?.start()
+                */
+
         }
         else{
             startButtonClicked = false
             stopTime()
             manageEnableButtonsRun(true, true)
 
-            if (mpHard?.isPlaying == true) mpHard?.pause()
-            if (mpSoft?.isPlaying == true) mpSoft?.pause()
+            if (hardTime) mpHard?.pause()
+            else mpSoft?.pause()
+            /*
+            if (tvChrono.getCurrentTextColor() == ContextCompat.getColor(this, R.color.chrono_running))
+                mpHard?.pause()
+            if (tvChrono.getCurrentTextColor()  == ContextCompat.getColor(this, R.color.chrono_walking))
+                mpSoft?.pause()
+                */
+
         }
     }
     private fun manageEnableButtonsRun(e_reset: Boolean, e_run: Boolean){
@@ -899,7 +924,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
     private fun startTime(){
         mHandler = Handler(Looper.getMainLooper())
         chronometer.run()
@@ -910,14 +934,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var chronometer: Runnable = object : Runnable {
         override fun run() {
             try{
-
                 if (mpHard!!.isPlaying){
                     val sbHardTrack: SeekBar = findViewById(R.id.sbHardTrack)
                     sbHardTrack.progress = mpHard!!.currentPosition
                 }
-                 if (mpSoft!!.isPlaying){
+                if (mpSoft!!.isPlaying){
                     val sbSoftTrack: SeekBar = findViewById(R.id.sbSoftTrack)
-                    sbSoftTrack.progress = mpHard!!.currentPosition
+                    sbSoftTrack.progress = mpSoft!!.currentPosition
                 }
 
                 updateTimesTrack(true, true)
@@ -950,6 +973,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun resetVariablesRun(){
         timeInSeconds = 0
         rounds = 1
+        hardTime = true
+
         challengeDistance = 0f
         challengeDuration = 0
 
@@ -998,12 +1023,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         swIntervalMode.isClickable = true
         npDurationInterval.isEnabled = true
         csbRunWalk.isEnabled = true
+        inflateIntervalMode()
 
         swChallenges.isClickable = true
         npChallengeDistance.isEnabled = true
         npChallengeDurationHH.isEnabled = true
         npChallengeDurationMM.isEnabled = true
         npChallengeDurationSS.isEnabled = true
+
+
+        sbHardTrack.isEnabled = false
+        sbSoftTrack.isEnabled = false
 
     }
 
@@ -1039,6 +1069,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mpHard?.pause()
             notifySound()
             mpSoft?.start()
+
+            hardTime = false
         }
         else updateProgressBarRound(Secs)
     }
@@ -1057,6 +1089,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             notifySound()
             mpHard?.start()
 
+            hardTime = true
         }
         else updateProgressBarRound(Secs)
     }
