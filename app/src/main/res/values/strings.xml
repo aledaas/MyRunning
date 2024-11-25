@@ -79,6 +79,11 @@
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
 
+    <string name="alertActivationGPSTitle">Permitir acceso a ubicación</string>
+    <string name="alertActivationGPSDescription">Si desea obtener datos de su carrera como la distancia y velicidad permita el uso del GPS</string>
+    <string name="ignoreActivationGPS">Ignorar</string>
+    <string name="aceptActivationGPS">Activar</string>
+
     <string name="bar_title_records">Historial</string>
     <string name="orderby_dateZA">Fecha (Recientes primero)</string>
     <string name="orderby_durationZA">Duración (Mayores primero)</string>
@@ -92,10 +97,10 @@
     <string name="orderby_avgspeedAZ">Vel. Prom. (Menores primero)</string>
     <string name="orderby_maxspeedAZ">Vel. Max. (Menores primero)</string>
 
-    <string name="start">VAVAVA</string>
-    <string name="stop">TATE QUIETO</string>
+    <string name="start">ANDANDO</string>
+    <string name="stop">DESCANSA</string>
     <string name="finish">Finalizar</string>
-    <string name="rounds">Round 1</string>
+    <string name="rounds">Ronda 1</string>
     <string name="time_running">Running Time</string>
     <string name="time_walking">Walking Time</string>
     <string name="walking_clock">00:00</string>
